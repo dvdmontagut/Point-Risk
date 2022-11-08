@@ -1,0 +1,71 @@
+{% extends './registerhead.html' %} {% block title %} P&R Create Risks{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+{% endblock %}
+{% block body %}
+    <body>
+    <section class="vh-100 gradient-custom overflow-auto">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-lg-6 mb-4 mb-lg-0">
+                    <div class="card mb-3 " style="border-radius: .5rem;">
+                        <div class="card-header">
+                            <h2 class="card-title">Create a Risks</h2>
+                        </div>
+                        <div class="card-body">
+                            <form method="post">
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-floating mb-4">
+                                            <input type="text" required id="name"
+                                                   class="form-control form-control-lg"
+                                                   name="name" maxlength="550"/>
+                                            <label for="name">Name</label>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+                                        <div class="form-floating mb-4">
+                                            <input type="text" required id="cat"
+                                                   class="form-control form-control-lg"
+                                                   name="cat"/>
+                                            <label for="cat">Category</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-4">
+                                        <div class="form-floating mb-4">
+                                            <textarea type="text" required id="description"
+                                                      class="form-control form-control-lg"
+                                                      name="description"></textarea>
+                                            <label for="description">Description</label>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12 mb-4">
+                                        <div class="d-flex my-switch">
+                                            <div class="form-text fs-5">Private</div>
+                                            <div class="form-check form-switch form-check-inline">
+                                                <input id="public" name="public"
+                                                       class="form-check-input form-check-inline"
+                                                       type="checkbox" checked>
+                                            </div>
+                                            <div class="form-text fs-5">Public</div>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <button class="btn btn-primary btn-block fa-lg gradient-custom mb-3"
+                                                type="submit">Create
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+{% endblock %}

@@ -13,6 +13,7 @@ import os
 app = Flask(__name__)
 app.secret_key = 'qwerty123'
 
+
 def get_con():
     return pymysql.connect(host='172.17.0.2', user='root', password='admin123', db='par')
 
@@ -54,17 +55,19 @@ def confirm(token):
 def login(msg=0):
     if request.method == 'GET':
         if msg == 1:
-            return render_template('login.html', msg="Check your mail to confirm your account.")
+            return render_template('noLog/login.html', msg="Check your mail to confirm your account.")
         elif msg == 2:
-            return render_template('login.html', msg="Account confirmed.")
+            return render_template('noLog/login.html', msg="Account confirmed.")
         elif msg == 3:
-            return render_template('login.html', warning="Data incorrect.")
+            return render_template('noLog/login.html', warning="Data incorrect.")
         elif msg == 4:
-            return render_template('login.html', warning="Account already confirmed.")
+            return render_template('noLog/login.html', warning="Account already confirmed.")
         elif msg == 5:
-            return render_template('login.html', warning="You have to Log In")
+            return render_template('noLog/login.html', warning="You have to Log In")
+        elif msg == 6:
+            return render_template('noLog/login.html', warning="You have to confirm your account first")
         else:
-            return render_template('login.html')
+            return render_template('noLog/login.html')
 
     email = request.form.get('email')
     password = request.form.get('pass')
@@ -77,6 +80,8 @@ def login(msg=0):
                 return redirect(url_for('.login', msg=3))
             else:
                 res = cursor.fetchone()
+                if res["active"] == 0:
+                    return redirect(url_for('.login', msg=6))
                 if not check_password_hash(res["password"], password):
                     return redirect(url_for('.login', msg=3))
                 else:
@@ -88,10 +93,31 @@ def login(msg=0):
                     return redirect(url_for('.profile'))
 
 
+@app.route("/PAR/changePass/", methods=['POST', 'GET'])
+def changePass():
+    if 'loggedin' in session:
+        if request.method == 'GET':
+            return render_template('profile/changePass.html')
+
+        npass = request.form.get('npass')
+        opass = request.form.get('opass')
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                if not check_password_hash(session['pass'], opass):
+                    return render_template('profile/changePass.html', warning="Wrong Password")
+                else:
+                    sql = "UPDATE users SET password = %s WHERE email LIKE %s"
+                    cursor.execute(sql, (generate_password_hash(npass, method='sha256'), session['email']))
+                    con.commit()
+
+    return redirect(url_for('.profile'))
+
+
 @app.route("/PAR/register/", methods=['POST', 'GET'])
 def register():
     if request.method == 'GET':
-        return render_template('registration.html')
+        return render_template('noLog/registration.html')
 
     email = request.form.get('email')
     name = request.form.get('username')
@@ -102,7 +128,7 @@ def register():
             sql = "SELECT * FROM users WHERE email LIKE %s OR username LIKE %s "
             number = cursor.execute(sql, (email, name))
             if number != 0:
-                return render_template('registration.html', warning="Data already exists")
+                return render_template('noLog/registration.html', warning="Data already exists")
             else:
                 check = True
                 while check:
@@ -133,10 +159,11 @@ def register():
 
     return redirect(url_for('.login', msg=1))
 
+
 @app.route("/PAR/forgot/", methods=['POST', 'GET'])
 def forgot():
     if request.method == 'GET':
-        return render_template('forgot.html')
+        return render_template('noLog/forgot.html')
 
     email = request.form.get('email')
     con = get_con()
@@ -169,7 +196,6 @@ def forgot():
                 return redirect(url_for('.login'))
 
 
-
 @app.route("/db/")
 def conect():
     con = get_con()
@@ -180,7 +206,111 @@ def conect():
 @app.route("/PAR/profile")
 def profile():
     if 'loggedin' in session:
-        return render_template('profile.html', name=session['username'])
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "SELECT * FROM risks WHERE user_id = %s  "
+                numberR = cursor.execute(sql, session['id'])
+                sql = "SELECT * FROM tables WHERE user_id = %s  "
+                numberT = cursor.execute(sql, session['id'])
+        return render_template('profile/profile.html', username=session['username'], email=session['email'],
+                               risks=numberR,
+                               tables=numberT)
+
+    return redirect(url_for('.login', msg=5))
+
+
+@app.route("/PAR/risks")
+def risks():
+    if 'loggedin' in session:
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "SELECT * FROM risks WHERE user_id = %s  "
+                numberR = cursor.execute(sql, session['id'])
+                risks = cursor.fetchall()
+                # return f"{numberR}{risks} asi es doña"
+        return render_template('risks/riskIndex.html', numberR=numberR, risks=risks)
+
+    return redirect(url_for('.login', msg=5))
+
+
+@app.route("/PAR/risks/create", methods=['POST', 'GET'])
+def risksCreate():
+    if 'loggedin' in session:
+        if request.method == "GET":
+            return render_template('risks/riskCreate.html')
+
+        name = request.form.get('name')
+        cat = request.form.get('cat')
+        description = request.form.get('description')
+        public = request.form.get('public')
+        if public:
+            public = 1
+        else:
+            public = 0
+
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "INSERT INTO risks (name, category, descript, public, user_id) VALUES (%s, %s, %s, %s, %s)"
+                number = cursor.execute(sql, (name, cat, description, public, session["id"]))
+                con.commit()
+
+        return redirect(url_for('.risks'))
+
+    return redirect(url_for('.login', msg=5))
+
+
+@app.route("/PAR/tables", methods=['POST', 'GET'])
+def tables():
+    if 'loggedin' in session:
+        con = get_con()
+        if request.method == 'POST':
+            name = request.form.get("name")
+            type = request.form.get("type")
+            with con:
+                with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                    sql = "INSERT INTO tables (user_id, name) VALUES (%s, %s)"
+                    number = cursor.execute(sql, (session["id"], name))
+                    if type == "fast":
+                        sql = "SELECT * FROM tables WHERE user_id = %s AND name = %s"
+                        number = cursor.execute(sql, (session["id"], name))
+                        tableId = cursor.fetchone()["id"]
+                        sql = "SELECT * FROM risks WHERE user_id = 1"
+                        numberR = cursor.execute(sql)
+                        risks = cursor.fetchall()
+                        for risk in risks:
+                            sql = "INSERT INTO trows (table_id, risk_id) values (%s, %s)"
+                            cursor.execute(sql, (tableId, risk["id"]))
+
+                    sql = "SELECT * FROM tables WHERE user_id = %s  "
+                    numberT = cursor.execute(sql, session['id'])
+                    tables = cursor.fetchall()
+                    con.commit()
+                    return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables)
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "SELECT * FROM tables WHERE user_id = %s  "
+                numberT = cursor.execute(sql, session['id'])
+                tables = cursor.fetchall()
+                # return f"{numberR}{risks} asi es doña"
+        return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables)
+
+    return redirect(url_for('.login', msg=5))
+
+
+@app.route("/PAR/tables/delete/<int:id>", methods=['GET'])
+def tablesDelete(id):
+    if 'loggedin' in session:
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = 'DELETE FROM tables WHERE user_id = %s AND id = %s'
+                number = cursor.execute(sql, (session["id"], id))
+                con.commit()
+
+        return redirect(url_for('.tables'))
 
     return redirect(url_for('.login', msg=5))
 

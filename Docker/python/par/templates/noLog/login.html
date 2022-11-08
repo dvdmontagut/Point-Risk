@@ -1,0 +1,85 @@
+{% extends './head.html' %} {% block title %} P&R Login {% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+{% block body %}
+    <body class="bg-light">
+    <section class="h-100 gradient-form gradient-custom-2">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-xl-10">
+                    <div class="card rounded-3 text-black">
+                        <div class="row g-0">
+                            <div class="col-lg-6">
+                                <div class="card-body p-md-5 mx-md-4">
+                                    {% if warning is defined %}
+                                        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                            <strong>{{ warning }}</strong>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                    {% endif %}
+                                    {% if msg is defined %}
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                                            <strong>{{ msg }}</strong>
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                    {% endif %}
+                                    <div class="text-center">
+                                        <img src="{{ url_for('static', filename='images/parLogo.png') }}"
+                                             style="width: 50px;" alt="logo">
+                                        <br>
+                                        <img src="{{ url_for('static', filename='images/parN.png') }}"
+                                             style="width: 120px ;" alt="logo">
+                                    </div>
+
+                                    <form method="post">
+                                        <br>
+                                        <p>Please login to your account</p>
+
+                                        <div class="form-floating mb-4">
+                                            <input required type="email" id="email" class="form-control" name="email"/>
+                                            <label for="email">Email</label>
+                                        </div>
+
+                                        <div class="form-floating mb-4">
+                                            <input required type="password" id="pass" class="form-control" name="pass"/>
+                                            <label for="pass">Password</label>
+                                        </div>
+
+                                        <div class="text-center pt-1 mb-5 pb-1">
+                                            <button class="btn btn-primary btn-block fa-lg gradient-custom-2 mb-3"
+                                                    type="submit">Log
+                                                in
+                                            </button>
+                                            <a class="text-muted" href="{{ url_for('forgot') }}">Forgot password?</a>
+                                        </div>
+
+                                        <div class="d-flex align-items-center justify-content-center pb-4">
+                                            <p class="mb-0 me-2">Don't have an account?</p>
+                                            <a type="button" class="btn btn-outline-danger"
+                                               href="{{ url_for('register') }}">Create new</a>
+                                        </div>
+
+                                    </form>
+
+                                </div>
+                            </div>
+                            <div class="col-lg-6 d-flex align-items-center">
+                                <div class="text-black px-3 py-4 p-md-5 mx-md-4">
+                                    <h3 class="mb-4">Make your own risks tables</h3>
+                                    <p class="mb-0">Thanks to this app you can start doing your own risks tables, also
+                                        you can
+                                        share your risks templates with other users and convert your risk tables to a
+                                        PDF file.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+{% endblock %}

@@ -36,11 +36,13 @@ class First extends AbstractMigration
         $trow = $this->table('trows');
         $trow
             ->addColumn('table_id', 'integer',  [                    'null' => false])
-            ->addColumn('prob',     'enum',     [                    'null' => false,   'values' => ['1', '2', '3', '4', '5']])
-            ->addColumn('impact',   'enum',     [                    'null' => false,   'values' => ['1', '2', '3', '4', '5']])
-            ->addColumn('result',   'enum',     [                    'null' => false,   'values' => ['low', 'moderate', 'high', 'extreme']])
+            ->addColumn('risk_id',  'integer',  [                    'null' => false])
+            ->addColumn('prob',     'enum',     [                    'null' => true,   'values' => ['1', '2', '3', '4', '5']])
+            ->addColumn('impact',   'enum',     [                    'null' => true,   'values' => ['1', '2', '3', '4', '5']])
+            ->addColumn('result',   'enum',     [                    'null' => true,   'values' => ['low', 'moderate', 'high', 'extreme']])
             ->addColumn('solution', 'string',   ['limit' => 600,     'null' => true,])
-            ->addForeignKey('table_id','tables','id',['delete'=> 'CASCADE', 'update'=> 'CASCADE'])
+            ->addForeignKey('table_id', 'tables',   'id',['delete'=> 'CASCADE', 'update'=> 'CASCADE'])
+            ->addForeignKey('risk_id',  'risks',    'id',['delete'=> 'CASCADE', 'update'=> 'CASCADE'])
             ->create();
     }
 

@@ -1,0 +1,75 @@
+{% extends './head.html' %} {% block title %} P&R Registration {% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/registration.css') }}">
+{% endblock %}
+{% block body %}
+    <body class="bg-light">
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row justify-content-center align-items-center h-100">
+                <div class="col-12 col-lg-9 col-xl-7">
+                    <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                        <div class="card-body p-4 p-md-5">
+                            {% if warning is defined %}
+                                <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                    <strong>{{ warning }}</strong> Check the data below.
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                            aria-label="Close"></button>
+                                </div>
+                            {% endif %}
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Point & Risk | Registration Form</h3>
+                            <form method="post">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4">
+
+                                        <div class="form-floating mb-4">
+                                            <input type="text" required id="username"
+                                                   class="form-control form-control-lg"
+                                                   name="username"/>
+                                            <label for="username">Username</label>
+                                        </div>
+
+                                    </div>
+                                    <div class="col-md-6 mb-4">
+
+                                        <div class="form-floating">
+                                            <input type="email" required id="email" class="form-control form-control-lg"
+                                                   name="email"/>
+                                            <label for="email">Email</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-4 d-flex align-items-center">
+
+                                        <div class="form-floating  w-100">
+                                            <input type="password" required class="form-control form-control-lg"
+                                                   id="pass"
+                                                   name="pass"/>
+                                            <label for="pass">Password</label>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-2">
+                                    <input class="btn btn-primary btn-lg gradient-custom" type="submit" value="Submit"/>
+                                    <div class="d-flex align-items-center justify-content-center pt-4">
+                                        <p class="mb-0 me-2">Have you already an account?</p>
+                                        <a type="button" class="btn btn-outline-danger" href="{{ url_for('login') }} ">Log
+                                            In</a>
+                                    </div>
+                                </div>
+
+
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+{% endblock %}

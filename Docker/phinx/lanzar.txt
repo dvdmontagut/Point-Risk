@@ -1,0 +1,4 @@
+docker run -dit --mount type=bind,src=/mnt/c/Users/34644/Documents/GitHub/Point-Risk/migrations,dst=/var/www/html --name phinx_par phinx
+
+
+GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'admin123' WITH GRANT OPTION;

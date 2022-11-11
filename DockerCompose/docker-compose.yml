@@ -1,0 +1,37 @@
+version: '1'
+
+services:
+
+  mysql:
+    image: mysql:5.7.26
+    volumes:
+      - "${SQLPATH}/DockerCompose/Docker/mysql/database:/var/lib/mysql"
+    environment:
+      MYSQL_DATABASE: par
+      MYSQL_ROOT_PASSWORD: ${SQLRP}
+    ports:
+      - "${SQLPORT}:3306"
+
+  phinx:
+    build:
+      context: ./Docker/phinx
+      dockerfile: Dockerfile
+    links:
+      - "mysql:db"
+    volumes:
+      - type: bind
+        source: "${PHPATH}/DockerCompose/Docker/migrations"
+        target: "/var/www/html"
+
+  python:
+    build:
+      context: ./Docker/python
+      dockerfile: Dockerfile
+    links:
+      - "mysql:db"
+    ports:
+      - "${PYPORT}:5000"
+    volumes:
+      - type: bind
+        source: "${PYPATH}/DockerCompose/Docker/python/par"
+        target: "/app/par"

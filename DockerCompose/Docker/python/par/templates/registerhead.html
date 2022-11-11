@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %} {% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mdb.min.css') }}">
+    {% block css %} {% endblock %}
+    <link rel="icon" href="{{ url_for('static', filename='images/LogoFull.ico') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mdb.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+
+    {% block js %} {% endblock %}
+</head>
+
+<header>
+    <div id="mySidebar" class="sidebar">
+        <div class="my-3">
+            <a href="{{ url_for('profile') }}">
+                <img src="{{ url_for('static', filename='icons/person-circle.svg') }}" alt="person" width="32"
+                     height="32">
+                Profile
+            </a>
+            <a href="{{ url_for('risks') }}">
+                <img src="{{ url_for('static', filename='icons/exclamation-square.svg') }}" alt="risk" width="32"
+                     height="32">
+                Risks
+            </a>
+            <a href="{{ url_for('tables') }}">
+                <img src="{{ url_for('static', filename='icons/table.svg') }}" alt="tables" width="32" height="32">
+                Tables
+            </a>
+            <a href="{{ url_for('search') }}">
+                <img src="{{ url_for('static', filename='icons/search.svg') }}" alt="search" width="32" height="32">
+                Search
+            </a>
+            <a href="{{ url_for('logout') }}">
+                <img src="{{ url_for('static', filename='icons/door-closed.svg') }}" alt="logout" width="32"
+                     height="32">
+                Log out
+            </a>
+        </div>
+    </div>
+    <button class="openbtn" id="myBtn" onclick="openNav()">&#9776 Point & Risk</button>
+</header>
+
+{% block body %}
+{% endblock %}
+
+</html>

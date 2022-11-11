@@ -1,0 +1,156 @@
+{% extends './registerhead.html' %} {% block title %} P&R Tables Edit{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+{% endblock %}
+
+{% block body %}
+    <body>
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-xl-10 col-lg-10 mb-4 mb-lg-0">
+                    <div class="card mb-3 " style="border-radius: .5rem; height: 80vh">
+                        <div class="card-header">
+                            <h2 class="card-title">You are editing table: {{ tname }}</h2>
+                        </div>
+                        <div class="card-body overflow-auto" id="card-main">
+                            {% for trow in trows %}
+
+                                {% if trow["result"] == 'low' %}
+                                    <div class="card border border-2 border-success my-2 mx-0 mx-md-4 col-11">
+                                {% elif trow["result"] == 'moderate' %}
+                                    <div class="card border border-2 border-secondary my-2 mx-0 mx-md-4 col-11">
+                                {% elif trow["result"] == 'high' %}
+                                    <div class="card border border-2 border-warning my-2 mx-0 mx-md-4 col-11">
+                                {% elif trow["result"] == 'extreme' %}
+                                    <div class="card border border-2 border-danger my-2 mx-0 mx-md-4 col-11">
+                                {% else %}
+                                    <div class="card border border-2 border-dark my-2 mx-0 mx-md-4 col-11">
+                                {% endif %}
+                            <div class="card-body border-dark fs-4" id="r{{ trow["id"] }}">
+                                <div class="container">
+                                    <form method="post">
+                                        <input type="text" hidden name="rowid" value="{{ trow["id"] }}">
+                                        <div class="row">
+                                            <div class="col-12 col-md-10">
+                                                <div class="row">
+                                                    <div class="col-md-2 col-12">
+                                                        <label>Name/Cat</label>
+                                                        <p class=" fs-6">
+                                                            {{ risks[trow["risk_id"]]["name"] }}<br>Cat:{{ risks[trow["risk_id"]]["category"] }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-2 col-12">
+                                                        <label>Probability</label>
+                                                        <select name="prob" class="form-select"
+                                                                aria-label="Default select example">
+                                                            {% for p in prob %}
+                                                                {% if loop.index|string  == trow["prob"] %}
+                                                                    <option selected
+                                                                            value="{{ loop.index }}">
+                                                                        {{ p }}</option>
+                                                                {% else %}
+                                                                    <option value="{{ loop.index }}">{{ p }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-3 col-12">
+                                                        <label>Impact</label>
+                                                        <select name="impact" class="form-select"
+                                                                aria-label="Default select example">
+                                                            {% for p in imp %}
+                                                                {% if loop.index|string == trow["impact"] %}
+                                                                    <option selected
+                                                                            value="{{ loop.index }}">{{ p }}</option>
+                                                                {% else %}
+                                                                    <option value="{{ loop.index }}">{{ p }}</option>
+                                                                {% endif %}
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                    <div class="col-md-2 col-12">
+                                                        <label>Result:</label>
+                                                        <p class="fs-6">
+                                                            {{ trow["result"] }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="col-md-2 col-12 ">
+                                                        <label>Description:</label>
+                                                        <textarea disabled class=" fs-6"
+                                                                  readonly>{{ risks[trow["risk_id"]]["descript"] }}
+                                                                </textarea>
+                                                    </div>
+                                                    <div>
+                                                        <label>Solution:</label>
+                                                        <textarea class=" form-control text-dark"
+                                                                  name="solution">{{ trow["solution"] }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-md-1">
+                                                <button class="btn btn-primary my-1 mx-5"
+                                                        type="submit">EDIT
+                                                </button>
+                                                <a href="{{ url_for('trowsDelete', id=trow["id"]) }}"
+                                                   class="btn btn-danger mb-6 my-1 mx-5">Delete</a>
+                                                <a href="{{ url_for('tablesUp', tid=trow["table_id"], rid=trow["id"]) }}"
+                                                   class="btn btn-success my-1 mt-6 mx-5">First Priority</a>
+                                                <a href="{{ url_for('tablesDown', tid=trow["table_id"], rid=trow["id"] ) }}"
+                                                   class="btn btn-warning my-1 mx-5">Last Priority</a>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            </div>
+                            {% endfor %}
+                            <div class="card border border-dark my-2 mx-0 mx-md-4 col-11">
+                                <div class="card-body border-dark fs-4" id="newRow">
+                                    <div class="card-header fs-4">
+                                        Create New Row
+                                    </div>
+                                    <div class="container">
+                                        <form method="post">
+                                            <input type="text" hidden name="type" value="newrow">
+                                            <div class="row">
+                                                <div class="col-12 col-md-10">
+                                                    <div class="row">
+                                                        <div class="col-md-2 col-12 my-3">
+                                                            <label>Risk ID:</label>
+                                                        </div>
+                                                        <div class="col-md-2 col-12 my-3">
+                                                            <input type="text" required class="form-control"
+                                                                   name="riskid">
+                                                        </div>
+                                                        <div class="col-md-2 col-12 my-2">
+                                                            <button class="btn btn-primary" type="submit">NEW</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+    <script>
+        var myElement = document.getElementById('{{ scroll }}');
+        var topPos = myElement.getBoundingClientRect();
+        document.getElementById('card-main').scrollTop = (topPos.top - 210);
+    </script>
+{% endblock %}
+
+
+
+

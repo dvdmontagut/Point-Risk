@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PDF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mdb.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+    <link rel="icon" href="{{ url_for('static', filename='images/LogoFull.ico') }}">
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/mdb.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+
+</head>
+
+<header>
+</header>
+
+<body>
+<section class="vh-100 gradient-custom">
+    <div class="col col-xl-10 col-lg-10 mb-4 mb-lg-0">
+        <div class="card mb-3 " style="border-radius: .5rem; height: 80vh">
+            <div class="card-header">
+                <h2 class="card-title">Table: {{ tname }}</h2>
+            </div>
+            <div class="card-body border-warning" id="card-main">
+                {% for trow in trows %}
+                    {% if trow["result"] == 'low' %}
+                        <div class="card border border-2 border-success my-2 mx-0 mx-md-4 col-11">
+                    {% elif trow["result"] == 'moderate' %}
+                        <div class="card border border-2 border-secondary my-2 mx-0 mx-md-4 col-11">
+                    {% elif trow["result"] == 'high' %}
+                        <div class="card border border-2 border-warning my-2 mx-0 mx-md-4 col-11">
+                    {% elif trow["result"] == 'extreme' %}
+                        <div class="card border border-2 border-danger my-2 mx-0 mx-md-4 col-11">
+                    {% else %}
+                        <div class="card border border-2 border-dark my-2 mx-0 mx-md-4 col-11">
+                    {% endif %}
+                <div class="card-body border-dark fs-4" id="r{{ trow["id"] }}">
+                    <div class="container">
+                        <form method="post">
+                            <input type="text" hidden name="rowid" value="{{ trow["id"] }}">
+                            <div class="row">
+                                <div class="col-12 col-md-10">
+                                    <div class="row">
+                                        <div class="col-md-2 col-12">
+                                            <label>Name/Cat</label>
+                                            <p class=" fs-6">
+                                                {{ risks[trow["risk_id"]]["name"] }}<br>Cat:{{ risks[trow["risk_id"]]["category"] }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-2 col-5">
+                                            <label>Probability:</label>
+                                            {% for p in prob %}
+                                                {% if loop.index|string  == trow["prob"] %}
+                                                    <div>{{ p }}</div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <br>
+                                        <div class="col-md-3 col-5">
+                                            <label>Impact:</label>
+                                            {% for p in imp %}
+                                                {% if loop.index|string == trow["impact"] %}
+                                                    <div>{{ p }}</div>
+                                                {% endif %}
+                                            {% endfor %}
+                                            </select>
+                                        </div>
+                                        <br>
+                                        <div class="col-md-2 col-12">
+                                            <label>Result:</label>
+                                            <p class="fs-6 ">
+                                                {{ trow["result"] }}
+                                            </p>
+                                        </div>
+                                        <div class="col-md-2 col-12 ">
+                                            <label>Description:</label>
+                                            <div disabled class=" fs-6"
+                                                 readonly>{{ risks[trow["risk_id"]]["descript"] }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <br>
+                                            <label>Solution:</label>
+                                            <div class="text-dark"
+                                                 name="solution">{{ trow["solution"] }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                </div>
+                {% endfor %}
+                </div>
+                </div>
+                </div>
+
+</section>
+</body>
+
+</html>
+

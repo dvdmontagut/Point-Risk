@@ -1,0 +1,102 @@
+{% extends './registerhead.html' %} {% block title %} P&R Tables{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+{% endblock %}
+{% block body %}
+
+    <body>
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-lg-10 mb-4 mb-lg-0">
+                    <div class="card mb-3 " style="border-radius: .5rem; height: 80vh">
+                        <div class="card-header">
+                            <h2 class="card-title">You have created {{ numberT }} Tables</h2>
+                        </div>
+                        <div class="card-body overflow-auto">
+                            <div class="container">
+                                <div class="row">
+                                    {% if tables is defined %}
+                                        {% for table in tables %}
+                                            <div class="card border border-dark my-2 mx-0 mx-md-4 col-12 col-md-3">
+                                                <div class="card-body border-dark fs-4 text-center">
+                                                    {{ table["name"] }}<br>
+                                                    <a href="{{ url_for('tablesEdit', id=table["id"]) }}"
+                                                       class="btn btn-primary">Edit</a>
+                                                    <a href="{{ url_for('tablesDelete', id=table["id"]) }}"
+                                                       class="btn btn-danger">Delete</a>
+                                                    <a href="{{ url_for('toPdf', id=table["id"]) }}"
+                                                       class="btn btn-success">PDF</a>
+                                                </div>
+
+                                            </div>
+                                        {% endfor %}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer text-muted text-center">
+                            <button type="button" class="btn btn-outline-primary mx-4" data-bs-toggle="modal"
+                                    data-bs-target="#fastModal">New Fast Table
+                            </button>
+                            <button type="button" class="btn btn-outline-primary mx-4" data-bs-toggle="modal"
+                                    data-bs-target="#customModal">New Custom Table
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+
+    <div class="modal fade" id="fastModal" tabindex="-1" aria-labelledby="fastModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">New Fast Table</h5>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <input type="text" hidden name="type" value="fast">
+                        <div class="mb-3">
+                            <label for="recipient-name" class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" id="recipient-name">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="customModal" tabindex="-1" aria-labelledby="customModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">New Custom Table</h5>
+                </div>
+                <form method="post">
+                    <div class="modal-body">
+                        <input type="text" hidden name="type" value="custom">
+                        <div class="mb-3">
+                            <label for="recipient-name2" class="col-form-label">Name:</label>
+                            <input type="text" name="name" class="form-control" id="recipient-name2">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Create</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}

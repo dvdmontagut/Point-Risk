@@ -15,8 +15,15 @@
 </head>
 
 <header>
-    <div id="mySidebar" class="sidebar">
+    <div id="mySidebar" class="sidebar overflow-hidden">
         <div class="my-3">
+            {% if role == "admin" %}
+                <a href="{{ url_for('admin') }}">
+                    <img src="{{ url_for('static', filename='icons/check-circle-fill.svg') }}" alt="person" width="32"
+                         height="32">
+                    Admin
+                </a>
+            {% endif %}
             <a href="{{ url_for('profile') }}">
                 <img src="{{ url_for('static', filename='icons/person-circle.svg') }}" alt="person" width="32"
                      height="32">

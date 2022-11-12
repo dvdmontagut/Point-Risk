@@ -29,6 +29,69 @@ def logout():
     return redirect(url_for('login'))
 
 
+@app.route("/PAR/admin/", methods=['GET', 'POST'])
+def admin():
+    if session["role"] == 'admin':
+        con = get_con()
+        with con:
+            with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                if request.method == 'POST':
+                    idd = request.form.get("userid")
+                    sql = 'DELETE FROM users WHERE id = %s'
+                    cursor.execute(sql, idd)
+
+                sql = "SELECT * FROM users"
+                n = cursor.execute(sql)
+                users = cursor.fetchall()
+                con.commit()
+                return render_template('admin/admin.html', role=session['role'], users=users, n=n)
+    else:
+        return redirect(url_for('.logout'))
+
+
+@app.route("/PAR/changeRole/<int:id>", methods=['GET'])
+def changeRole(id):
+    if session["role"] == 'admin':
+        if session["id"] != id:
+            con = get_con()
+            with con:
+                with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                    sql = "SELECT * FROM users WHERE id = %s"
+                    cursor.execute(sql, id)
+                    role = cursor.fetchone()["role"]
+                    if role == "admin":
+                        role = "user"
+                    else:
+                        role = "admin"
+
+                    sql = 'UPDATE users SET role = %s WHERE id = %s'
+                    cursor.execute(sql, (role, id))
+                    con.commit()
+
+        return redirect(url_for('.admin'))
+
+    else:
+        return redirect(url_for('.logout'))
+
+
+@app.route("/PAR/deleteUser/<int:id>", methods=['GET'])
+def deleteUser(id):
+    if session["role"] == 'admin':
+        if session["id"] != id:
+            con = get_con()
+            with con:
+                with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                    if request.method == 'POST':
+                        sql = "DELETE FROM users WHERE id = %s"
+                        cursor.execute(sql, id)
+                        con.commit()
+
+        return redirect(url_for('.admin'))
+
+    else:
+        return redirect(url_for('.logout'))
+
+
 @app.route("/PAR/confirm/<string:token>", methods=['GET'])
 def confirm(token):
     con = get_con()
@@ -50,7 +113,7 @@ def confirm(token):
                 return redirect(url_for('.login', msg=3))
 
 
-@app.route("/PAR//", methods=['POST', 'GET'])
+@app.route("/PAR/", methods=['POST', 'GET'])
 @app.route("/", methods=['POST', 'GET'])
 @app.route("/PAR/login/", methods=['POST', 'GET'])
 @app.route("/PAR/login/<int:msg>", methods=['POST', 'GET'])
@@ -89,6 +152,7 @@ def login(msg=0):
                 else:
                     session['loggedin'] = True
                     session['id'] = res['id']
+                    session['role'] = res['role']
                     session['username'] = res['username']
                     session['email'] = res['email']
                     session['pass'] = res['password']
@@ -107,7 +171,7 @@ def changePass():
         with con:
             with con.cursor(pymysql.cursors.DictCursor) as cursor:
                 if not check_password_hash(session['pass'], opass):
-                    return render_template('profile/changePass.html', warning="Wrong Password")
+                    return render_template('profile/changePass.html', warning="Wrong Password", role=session['role'])
                 else:
                     sql = "UPDATE users SET password = %s WHERE email LIKE %s"
                     cursor.execute(sql, (generate_password_hash(npass, method='sha256'), session['email']))
@@ -165,7 +229,7 @@ def register():
 @app.route("/PAR/forgot/", methods=['POST', 'GET'])
 def forgot():
     if request.method == 'GET':
-        return render_template('noLog/forgot.html')
+        return render_template('noLog/forgot.html', role=session['role'])
 
     email = request.form.get('email')
     con = get_con()
@@ -217,7 +281,7 @@ def profile():
                 numberT = cursor.execute(sql, session['id'])
         return render_template('profile/profile.html', username=session['username'], email=session['email'],
                                risks=numberR,
-                               tables=numberT)
+                               tables=numberT, role=session['role'])
 
     return redirect(url_for('.login', msg=5))
 
@@ -232,7 +296,7 @@ def risks():
                 numberR = cursor.execute(sql, session['id'])
                 risks = cursor.fetchall()
                 # return f"{numberR}{risks} asi es doña"
-        return render_template('risks/riskIndex.html', numberR=numberR, risks=risks)
+        return render_template('risks/riskIndex.html', numberR=numberR, risks=risks, role=session['role'])
 
     return redirect(url_for('.login', msg=5))
 
@@ -241,7 +305,7 @@ def risks():
 def risksCreate():
     if 'loggedin' in session:
         if request.method == "GET":
-            return render_template('risks/riskCreate.html')
+            return render_template('risks/riskCreate.html', role=session['role'])
 
         name = request.form.get('name')
         cat = request.form.get('cat')
@@ -326,14 +390,15 @@ def tables():
                     numberT = cursor.execute(sql, session['id'])
                     tables = cursor.fetchall()
                     con.commit()
-                    return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables)
+                    return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables,
+                                           role=session['role'])
         with con:
             with con.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = "SELECT * FROM tables WHERE user_id = %s ORDER BY id DESC "
                 numberT = cursor.execute(sql, session['id'])
                 tables = cursor.fetchall()
                 # return f"{numberR}{risks} asi es doña"
-        return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables)
+        return render_template('tables/tablesIndex.html', numberT=numberT, tables=tables, role=session['role'])
 
     return redirect(url_for('.login', msg=5))
 
@@ -471,9 +536,10 @@ def tablesEdit(id):
                 if request.method == "POST":
                     con.commit()
                     return render_template('tables/tableEdit.html', tname=tname, risks=risks, trows=trows, prob=prob,
-                                           imp=imp, scroll=scroll)
+                                           imp=imp, scroll=scroll, role=session['role'])
 
-        return render_template('tables/tableEdit.html', tname=tname, risks=risks, trows=trows, prob=prob, imp=imp)
+        return render_template('tables/tableEdit.html', tname=tname, risks=risks, trows=trows, prob=prob, imp=imp,
+                               role=session['role'])
 
     return redirect(url_for('.login', msg=5))
 
@@ -537,7 +603,7 @@ def search():
                     cursor.execute(sqlAut, risk["user_id"])
                     risk["auth"] = cursor.fetchone()["username"]
 
-        return render_template('risks/risksSearch.html', risks=risks)
+        return render_template('risks/risksSearch.html', risks=risks, role=session['role'])
 
     return redirect(url_for('.login', msg=5))
 
@@ -573,7 +639,7 @@ def pdf(id, passw):
                 risks[trow["risk_id"]] = cursor.fetchone()
 
     return render_template('tables/tablePDF.html', tname=tname, risks=risks, trows=trows, prob=prob,
-                           imp=imp)
+                           imp=imp, role=session['role'])
 
 
 @app.route("/PAR/tables/pdf/<int:id>", methods=['GET'])
@@ -593,4 +659,4 @@ def toPdf(id):
 
 if __name__ == "__main__":
     port = int(os.environ.get('PORT', 5000))
-    app.run(debug=False, host='0.0.0.0', port=port)
+    app.run(debug=True, host='0.0.0.0', port=port)

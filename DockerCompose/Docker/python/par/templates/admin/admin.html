@@ -1,0 +1,53 @@
+{% extends './registerhead.html' %} {% block title %} P&R Risks{% endblock %}
+{% block css %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/background.css') }}">
+{% endblock %}
+{% block body %}
+    <body>
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col col-xl-8 col-lg-8 mb-4 mb-lg-0">
+                    <div class="card mb-3 " style="border-radius: .5rem; height: 80vh">
+                        <div class="card-header">
+                            <h2 class="card-title">Total Users: {{ n }}</h2>
+                        </div>
+                        <div class="card-body overflow-auto" id="card-main">
+                            <table class="table">
+                                <thead>
+                                <tr>
+                                    <th scope="col">#</th>
+                                    <th scope="col">Username</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Actions</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                {% for user in users %}
+                                    <tr>
+                                        <th scope="row">{{ loop.index }}</th>
+                                        <td>{{ user["username"] }}</td>
+                                        <td>{{ user["email"] }}</td>
+                                        <td>
+                                            <a href="{{ url_for('deleteUser', id=user["id"] ) }}"
+                                               class="btn btn-danger my-1 mx-1">Delete</a>
+                                            {% if user["role"] == "user" %}
+                                                <a href="{{ url_for('changeRole', id=user["id"]) }}"
+                                                   class="btn btn-success my-1 mx-1">Be Admin</a>
+                                            {% else %}
+                                                <a href="{{ url_for('changeRole', id=user["id"]) }}"
+                                                   class="btn btn-warning my-1 mx-1">Be User</a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    </body>
+{% endblock %}

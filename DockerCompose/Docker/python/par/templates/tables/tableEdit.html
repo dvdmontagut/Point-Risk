@@ -95,9 +95,9 @@
                                                 <a href="{{ url_for('trowsDelete', id=trow["id"]) }}"
                                                    class="btn btn-danger mb-6 my-1 mx-5">Delete</a>
                                                 <a href="{{ url_for('tablesUp', tid=trow["table_id"], rid=trow["id"]) }}"
-                                                   class="btn btn-success my-1 mt-6 mx-5">First Priority</a>
+                                                   class="btn btn-success my-1 mt-6 mx-5">Up Priority</a>
                                                 <a href="{{ url_for('tablesDown', tid=trow["table_id"], rid=trow["id"] ) }}"
-                                                   class="btn btn-warning my-1 mx-5">Last Priority</a>
+                                                   class="btn btn-warning my-1 mx-5">Down Priority</a>
                                             </div>
                                         </div>
                                     </form>

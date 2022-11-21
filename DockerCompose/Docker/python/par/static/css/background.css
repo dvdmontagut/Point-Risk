@@ -3,10 +3,12 @@
     background: #fccb90;
 
     /* Chrome 10-25, Safari 5.1-6 */
-    background: -webkit-linear-gradient(to right, #000000, #EC5852, #000000);
+    /* background: -webkit-linear-gradient(to right, #000000, #EC5852, #000000);*/
+    background: -webkit-linear-gradient(#000000, #EC5852);
 
     /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
-    background: linear-gradient(to right, #000000, #EC5852, #000000);
+    background: linear-gradient(#EC5852, #c34a45, #6f2424);
+    /*background: linear-gradient(to right, #000000, #EC5852, #000000);*/
 }
 
 .sidebar {

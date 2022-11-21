@@ -163,7 +163,7 @@ def login(msg=0):
 def changePass():
     if 'loggedin' in session:
         if request.method == 'GET':
-            return render_template('profile/changePass.html')
+            return render_template('profile/changePass.html', role=session['role'])
 
         npass = request.form.get('npass')
         opass = request.form.get('opass')
@@ -210,7 +210,7 @@ def register():
                     email_password = 'orsntrooqzvucoim'
                     email_receiver = email
                     subject = 'Confirm email Point and Risk'
-                    body = f"Use this link: http://localhost:5001/PAR/confirm/{res}"
+                    body = f"Use this link: http://localhost:5002/PAR/confirm/{res}"
                     em = EmailMessage()
                     em['From'] = email_sender
                     em['To'] = email_receiver
@@ -229,7 +229,7 @@ def register():
 @app.route("/PAR/forgot/", methods=['POST', 'GET'])
 def forgot():
     if request.method == 'GET':
-        return render_template('noLog/forgot.html', role=session['role'])
+        return render_template('noLog/forgot.html')
 
     email = request.form.get('email')
     con = get_con()
@@ -380,7 +380,7 @@ def tables():
                         sql = "SELECT * FROM risks WHERE user_id = 1"
                         numberR = cursor.execute(sql)
                         risks = cursor.fetchall()
-                        index = 0
+                        index = 1
                         for risk in risks:
                             sql = "INSERT INTO trows (table_id, risk_id, priority) values (%s, %s, %s)"
                             cursor.execute(sql, (tableId, risk["id"], index))
@@ -425,12 +425,11 @@ def tablesDown(tid, rid):
         with con:
             with con.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = "SELECT id FROM trows WHERE table_id = %s ORDER BY priority ASC"
-                nRows = cursor.execute(sql, tid) - 1
+                nRows = cursor.execute(sql, tid)
                 sql = "SELECT * FROM trows WHERE table_id = %s"
                 cursor.execute(sql, tid)
                 row = cursor.fetchone()["priority"]
                 if row != nRows:
-                    print('This is error output', file=sys.stdout)
                     sql = "UPDATE trows SET priority = %s WHERE table_id = %s AND priority = %s"
                     cursor.execute(sql, (row, tid, row + 1))
                     sql = "UPDATE trows SET priority = %s WHERE id = %s"
@@ -451,7 +450,7 @@ def tablesUp(tid, rid):
                 sql = "SELECT * FROM trows WHERE table_id = %s"
                 cursor.execute(sql, tid)
                 row = cursor.fetchone()["priority"]
-                if row != 0:
+                if row != 1:
                     sql = "UPDATE trows SET priority = %s WHERE table_id = %s AND priority = %s"
                     cursor.execute(sql, (row, tid, row - 1))
                     sql = "UPDATE trows SET priority = %s WHERE id = %s"
@@ -493,8 +492,10 @@ def tablesEdit(id):
 
                         if n != 0:
                             risk = cursor.fetchone()
-                            sql = "INSERT INTO trows (table_id, risk_id) values (%s, %s)"
-                            cursor.execute(sql, (id, risk["id"]))
+                            sql = "SELECT * FROM trows"
+                            n2 = cursor.execute(sql)
+                            sql = "INSERT INTO trows (table_id, risk_id, priority) values (%s, %s, %s)"
+                            cursor.execute(sql, (id, risk["id"], n2 + 1))
                             scroll = "newRow"
 
                     else:
@@ -550,15 +551,24 @@ def trowsDelete(id):
         con = get_con()
         with con:
             with con.cursor(pymysql.cursors.DictCursor) as cursor:
+                sql = "SELECT * FROM trows"
+                number = cursor.execute(sql)
                 sql = 'SELECT * FROM trows WHERE id = %s'
-                number = cursor.execute(sql, id)
-                tid = cursor.fetchone()["table_id"]
+                cursor.execute(sql, id)
+                row = cursor.fetchone()
+                index = row["priority"]
+                tid = row["table_id"]
+
+                for i in range(index + 1, number + 1):
+                    sql = "UPDATE trows SET priority = %s WHERE table_id = %s AND priority = %s"
+                    cursor.execute(sql, (i - 1, tid, i))
+
                 sql = 'SELECT * FROM tables WHERE id = %s'
-                number = cursor.execute(sql, tid)
+                cursor.execute(sql, tid)
                 uid = cursor.fetchone()["user_id"]
                 if uid == session["id"]:
                     sql = 'DELETE FROM trows WHERE id = %s'
-                    number = cursor.execute(sql, id)
+                    cursor.execute(sql, id)
                     con.commit()
 
         return redirect(url_for('.tablesEdit', id=tid))
@@ -639,7 +649,7 @@ def pdf(id, passw):
                 risks[trow["risk_id"]] = cursor.fetchone()
 
     return render_template('tables/tablePDF.html', tname=tname, risks=risks, trows=trows, prob=prob,
-                           imp=imp, role=session['role'])
+                           imp=imp)
 
 
 @app.route("/PAR/tables/pdf/<int:id>", methods=['GET'])
